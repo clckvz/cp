@@ -31,7 +31,7 @@ h1 {
     width: 100%;
     padding: 30px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    background-color: #ffffff;
+    background-color: var(--cor1);
     border-radius: 12px;
     margin: 30px;
     display: flex;
@@ -78,7 +78,7 @@ button {
     font-size: 16px;
     color: #ffffff;
     margin: 10px 0;
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    transition: background-color 0.3s ease;
 }
 
 /* Estilos específicos para cada botão */
@@ -87,31 +87,27 @@ button#btnLog {
 }
 
 button#btnLog:hover {
-    background-color: var(--cor3);
+    background-color: #0056b3;
 }
 
 button#createFolderBtn {
-    background-color: var(--cor1);
-    color: #ffffff;
-    font-weight: bold;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    background-color: var(--cor3);
 }
 
 button#createFolderBtn:hover {
-    background-color: var(--cor2);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    background-color: #1f2e3d;
 }
 
 button#btnUpload {
-    background-color: var(--cor1);
-}
-
-button#btnUpload:hover {
     background-color: var(--cor2);
 }
 
+button#btnUpload:hover {
+    background-color: #138496;
+}
+
 button#btnLogout {
-    background-color: var(--cor4);
+    background-color: #dc3545;
 }
 
 button#btnLogout:hover {
@@ -131,14 +127,14 @@ button#btnLogout:hover {
 .image-wrapper img {
     max-width: 100%;
     height: auto;
-    border: 1px solid var(--cor3);
+    border: 1px solid #dee2e6;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Estilo dos botões de exclusão */
 .delete-btn {
-    background-color: var(--cor4);
+    background-color: #dc3545;
     color: white;
     border: none;
     padding: 6px 12px;
@@ -155,11 +151,29 @@ button#btnLogout:hover {
     background-color: #c82333;
 }
 
+/* Estilo dos botões de download */
+.download-btn {
+    background-color: var(--cor2);
+    color: #ffffff;
+    border: none;
+    padding: 6px 12px;
+    margin-left: 10px;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 14px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.download-btn:hover {
+    background-color: #0056b3;
+}
+
 /* Estilo para a mensagem quando não há imagens */
 .no-images {
     margin-top: 20px;
     font-style: italic;
-    color: var(--cor3);
+    color: #6c757d;
     font-size: 18px;
 }
 

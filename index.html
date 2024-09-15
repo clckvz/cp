@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>App CP</title>
     <link rel="stylesheet" href="styles.css">
-
 </head>
 <body>
     <h1>Iniciando App CP</h1>   
@@ -47,208 +46,225 @@
     <!-- Scripts -->
     <script>
         const g = (tag) => document.getElementById(tag);
-        const email = g('email');
-        const pass = g('pass');
-        const btnLog = g('btnLog');
-        const folderName = g('folderName');
-        const btnCreateFolder = g('btnCreateFolder');
-        const fileInput = g('fileInput');
-        const btnUpload = g('btnUpload');
-        const imageContainer = g('imageContainer');
-        const btnLogout = g('btnLogout');
-        const folderSelect = g('folderSelect');
-        const uploadContainer = document.querySelector('.upload-container');
-        const createFolderContainer = document.querySelector('.create-folder-container');
+const email = g('email');
+const pass = g('pass');
+const btnLog = g('btnLog');
+const folderName = g('folderName');
+const btnCreateFolder = g('btnCreateFolder');
+const fileInput = g('fileInput');
+const btnUpload = g('btnUpload');
+const imageContainer = g('imageContainer');
+const btnLogout = g('btnLogout');
+const folderSelect = g('folderSelect');
+const uploadContainer = document.querySelector('.upload-container');
+const createFolderContainer = document.querySelector('.create-folder-container');
 
-        // Firebase Authentication
-        btnLog.addEventListener('click', () => {
-            firebase.auth().signInWithEmailAndPassword(email.value, pass.value)
-                .then(() => {
-                    console.log('Login realizado com sucesso');
-                    displayFolders();
-                    displayImages(); // Exibe as imagens ao fazer login
-                    btnLogout.style.display = 'block';
-                    uploadContainer.style.display = 'block'; // Exibe a seção de upload
-                    createFolderContainer.style.display = 'block'; // Exibe a seção de criação de pasta
-                })
-                .catch((e) => {
-                    console.log('Erro ao fazer login:', e.message);
-                });
+// Firebase Authentication
+btnLog.addEventListener('click', () => {
+    firebase.auth().signInWithEmailAndPassword(email.value, pass.value)
+        .then(() => {
+            console.log('Login realizado com sucesso');
+            displayFolders();
+            displayImages(); // Exibe as imagens ao fazer login
+            btnLogout.style.display = 'block';
+            uploadContainer.style.display = 'block'; // Exibe a seção de upload
+            createFolderContainer.style.display = 'block'; // Exibe a seção de criação de pasta
+        })
+        .catch((e) => {
+            console.log('Erro ao fazer login:', e.message);
         });
+});
 
-        // Função de logout
-        btnLogout.addEventListener('click', () => {
-            firebase.auth().signOut()
-                .then(() => {
-                    console.log('Logout realizado com sucesso');
-                    imageContainer.innerHTML = '';
-                    btnLogout.style.display = 'none';
-                    uploadContainer.style.display = 'none'; // Oculta a seção de upload
-                    createFolderContainer.style.display = 'none'; // Oculta a seção de criação de pasta
-                })
-                .catch((e) => {
-                    console.log('Erro ao fazer logout:', e.message);
-                });
+// Função de logout
+btnLogout.addEventListener('click', () => {
+    firebase.auth().signOut()
+        .then(() => {
+            console.log('Logout realizado com sucesso');
+            imageContainer.innerHTML = '';
+            btnLogout.style.display = 'none';
+            uploadContainer.style.display = 'none'; // Oculta a seção de upload
+            createFolderContainer.style.display = 'none'; // Oculta a seção de criação de pasta
+        })
+        .catch((e) => {
+            console.log('Erro ao fazer logout:', e.message);
         });
+});
 
-        // Firebase Storage reference
-        const storageRef = firebase.storage().ref();
+// Firebase Storage reference
+const storageRef = firebase.storage().ref();
 
-        // Função para exibir pastas disponíveis
-        async function displayFolders() {
-            folderSelect.innerHTML = '<option value="">Raiz</option>'; // Adiciona a opção de raiz
-            const folders = new Set();
+// Função para exibir pastas disponíveis
+async function displayFolders() {
+    folderSelect.innerHTML = '<option value="">Raiz</option>'; // Adiciona a opção de raiz
+    const folders = new Set();
+    
+    // Função para listar pastas recursivamente
+    async function listFolders(path) {
+        const ref = storageRef.child(path);
+        try {
+            const result = await ref.list({ maxResults: 1000 });
             
-            // Função para listar pastas recursivamente
-            async function listFolders(path) {
-                const ref = storageRef.child(path);
-                try {
-                    const result = await ref.list({ maxResults: 1000 });
-                    
-                    // Adiciona subpastas encontradas
-                    for (const itemRef of result.prefixes) {
-                        const folderPath = itemRef.fullPath;
-                        if (folderPath) {
-                            folders.add(folderPath.split('/')[0]); // Adiciona a pasta
-                            await listFolders(folderPath); // Lista subpastas
-                        }
-                    }
-                } catch (error) {
-                    console.error('Erro ao listar pastas:', error);
+            // Adiciona subpastas encontradas
+            for (const itemRef of result.prefixes) {
+                const folderPath = itemRef.fullPath;
+                if (folderPath) {
+                    folders.add(folderPath.split('/')[0]); // Adiciona a pasta
+                    await listFolders(folderPath); // Lista subpastas
                 }
             }
-
-            // Lista pastas a partir da raiz
-            await listFolders('');
-            
-            // Atualiza o seletor de pastas com as pastas encontradas
-            folders.forEach(folder => {
-                const option = document.createElement('option');
-                option.value = folder;
-                option.text = folder;
-                folderSelect.appendChild(option);
-            });
+        } catch (error) {
+            console.error('Erro ao listar pastas:', error);
         }
+    }
 
-        // Função para criar uma nova pasta
-        btnCreateFolder.addEventListener('click', async () => {
-            const folder = folderName.value.trim();
-            if (!folder) {
-                alert('Por favor, digite um nome para a pasta.');
-                return;
-            }
+    // Lista pastas a partir da raiz
+    await listFolders('');
+    
+    // Atualiza o seletor de pastas com as pastas encontradas
+    folders.forEach(folder => {
+        const option = document.createElement('option');
+        option.value = folder;
+        option.text = folder;
+        folderSelect.appendChild(option);
+    });
+}
 
-            try {
-                const newFolderRef = storageRef.child(folder + '/'); // Cria uma referência para a nova pasta
-                // Cria um arquivo vazio para garantir que a pasta seja criada
-                await newFolderRef.child('placeholder').put(new Blob([]));
-                console.log('Pasta criada com sucesso');
-                displayFolders(); // Atualiza a lista de pastas após a criação
-                folderName.value = ''; // Limpa o campo de nome da pasta
-            } catch (error) {
-                console.error('Erro ao criar pasta:', error);
-            }
-        });
+// Função para criar uma nova pasta
+btnCreateFolder.addEventListener('click', async () => {
+    const folder = folderName.value.trim();
+    if (!folder) {
+        alert('Por favor, digite um nome para a pasta.');
+        return;
+    }
 
-        // Função para fazer upload de arquivos
-        btnUpload.addEventListener('click', async () => {
-            const file = fileInput.files[0]; // Seleciona o arquivo
-            const selectedFolder = folderSelect.value; // Obtém a pasta selecionada
+    try {
+        const newFolderRef = storageRef.child(folder + '/'); // Cria uma referência para a nova pasta
+        // Cria um arquivo vazio para garantir que a pasta seja criada
+        await newFolderRef.child('placeholder').put(new Blob([]));
+        console.log('Pasta criada com sucesso');
+        displayFolders(); // Atualiza a lista de pastas após a criação
+        folderName.value = ''; // Limpa o campo de nome da pasta
+    } catch (error) {
+        console.error('Erro ao criar pasta:', error);
+    }
+});
 
-            if (!file) {
-                alert('Por favor, selecione uma imagem para fazer o upload.');
-                return;
-            }
+// Função para fazer upload de arquivos
+btnUpload.addEventListener('click', async () => {
+    const file = fileInput.files[0]; // Seleciona o arquivo
+    const selectedFolder = folderSelect.value; // Obtém a pasta selecionada
 
-            // Se não houver pasta selecionada, coloca o arquivo na raiz
-            const folderPath = selectedFolder ? selectedFolder : ''; 
-            const fileRef = storageRef.child(folderPath + '/' + file.name); // Cria uma referência com o nome da pasta e do arquivo
+    if (!file) {
+        alert('Por favor, selecione uma imagem para fazer o upload.');
+        return;
+    }
 
-            try {
-                // Faz o upload do arquivo
-                await fileRef.put(file);
-                console.log('Upload concluído com sucesso');
-                // Após o upload, exibe novamente as imagens
-                displayImages();
-            } catch (error) {
-                console.error('Erro ao fazer upload:', error);
-            }
-        });
+    // Se não houver pasta selecionada, coloca o arquivo na raiz
+    const folderPath = selectedFolder ? selectedFolder : ''; 
+    const fileRef = storageRef.child(folderPath + '/' + file.name); // Cria uma referência com o nome da pasta e do arquivo
 
-        // Função para exibir imagens da pasta selecionada ou da raiz
-        async function displayImages() {
-            imageContainer.innerHTML = ''; // Limpa o container antes de exibir as imagens
-            const selectedFolder = folderSelect.value;
-            const folderPath = selectedFolder ? selectedFolder : ''; // Define o caminho da pasta
+    try {
+        // Faz o upload do arquivo
+        await fileRef.put(file);
+        console.log('Upload concluído com sucesso');
+        // Após o upload, exibe novamente as imagens
+        displayImages();
+    } catch (error) {
+        console.error('Erro ao fazer upload:', error);
+    }
+});
 
-            try {
-                const folderRef = storageRef.child(folderPath); // Cria uma referência para a pasta selecionada ou raiz
-                const result = await folderRef.list(); // Lista os itens na pasta
+// Função para exibir imagens da pasta selecionada ou da raiz
+async function displayImages() {
+    imageContainer.innerHTML = ''; // Limpa o container antes de exibir as imagens
+    const selectedFolder = folderSelect.value;
+    const folderPath = selectedFolder ? selectedFolder : ''; // Define o caminho da pasta
 
-                for (const itemRef of result.items) {
-                    // Verifica se o item é um arquivo (imagens)
-                    if (itemRef.name.match(/\.(jpg|jpeg|png|gif)$/i)) {
-                        const url = await itemRef.getDownloadURL();
-                        const imgWrapper = document.createElement('div');
-                        imgWrapper.classList.add('image-wrapper');
+    try {
+        const folderRef = storageRef.child(folderPath); // Cria uma referência para a pasta selecionada ou raiz
+        const result = await folderRef.list(); // Lista os itens na pasta
 
-                        const img = document.createElement('img');
-                        img.src = url;
-                        img.alt = 'Imagem';
-                        imgWrapper.appendChild(img);
+        for (const itemRef of result.items) {
+            // Verifica se o item é um arquivo (imagens)
+            if (itemRef.name.match(/\.(jpg|jpeg|png|gif)$/i)) {
+                const url = await itemRef.getDownloadURL();
+                const imgWrapper = document.createElement('div');
+                imgWrapper.classList.add('image-wrapper');
 
-                        const deleteBtn = document.createElement('button');
-                        deleteBtn.textContent = 'Excluir';
-                        deleteBtn.className = 'delete-btn';
-                        deleteBtn.addEventListener('click', () => deleteImage(itemRef));
-                        imgWrapper.appendChild(deleteBtn);
+                const img = document.createElement('img');
+                img.src = url;
+                img.alt = 'Imagem';
+                imgWrapper.appendChild(img);
 
-                        imageContainer.appendChild(imgWrapper);
-                    }
-                }
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = 'Excluir';
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.addEventListener('click', () => deleteImage(itemRef));
+                imgWrapper.appendChild(deleteBtn);
 
-                if (result.items.length === 0) {
-                    const message = document.createElement('p');
-                    message.textContent = 'Nenhuma imagem encontrada.';
-                    imageContainer.appendChild(message);
-                }
-            } catch (error) {
-                console.error('Erro ao carregar imagens:', error);
+                const downloadBtn = document.createElement('button');
+                downloadBtn.textContent = 'Download';
+                downloadBtn.className = 'download-btn';
+                downloadBtn.addEventListener('click', () => downloadImage(url, itemRef.name));
+                imgWrapper.appendChild(downloadBtn);
+
+                imageContainer.appendChild(imgWrapper);
             }
         }
 
-        // Função para excluir uma imagem
-        async function deleteImage(itemRef) {
-            try {
-                await itemRef.delete(); // Exclui a imagem
-                console.log('Imagem excluída com sucesso');
-                displayImages(); // Atualiza a lista de imagens após a exclusão
-            } catch (error) {
-                console.error('Erro ao excluir imagem:', error);
-            }
+        if (result.items.length === 0) {
+            const message = document.createElement('p');
+            message.textContent = 'Nenhuma imagem encontrada.';
+            imageContainer.appendChild(message);
         }
+    } catch (error) {
+        console.error('Erro ao carregar imagens:', error);
+    }
+}
 
-        // Atualiza as imagens quando a seleção de pasta muda
-        folderSelect.addEventListener('change', displayImages);
+// Função para excluir uma imagem
+async function deleteImage(itemRef) {
+    try {
+        await itemRef.delete(); // Exclui a imagem
+        console.log('Imagem excluída com sucesso');
+        displayImages(); // Atualiza a lista de imagens após a exclusão
+    } catch (error) {
+        console.error('Erro ao excluir imagem:', error);
+    }
+}
 
-        // Verifica o estado de autenticação na carga da página
-        window.onload = () => {
-            firebase.auth().onAuthStateChanged(user => {
-                if (user) {
-                    displayFolders();
-                    displayImages(); // Exibe as imagens ao carregar se o usuário estiver autenticado
-                    btnLogout.style.display = 'block';
-                    uploadContainer.style.display = 'block'; // Exibe a seção de upload
-                    createFolderContainer.style.display = 'block'; // Exibe a seção de criação de pasta
-                } else {
-                    console.log('Usuário não autenticado');
-                    btnLogout.style.display = 'none';
-                    uploadContainer.style.display = 'none'; // Oculta a seção de upload
-                    createFolderContainer.style.display = 'none'; // Oculta a seção de criação de pasta
-                    imageContainer.innerHTML = ''; // Limpa o container de imagens se não estiver autenticado
-                }
-            });
-        };
+// Função para forçar o download da imagem
+function downloadImage(url, filename) {
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Atualiza as imagens quando a seleção de pasta muda
+folderSelect.addEventListener('change', displayImages);
+
+// Verifica o estado de autenticação na carga da página
+window.onload = () => {
+    firebase.auth().onAuthStateChanged(user => {
+        if (user) {
+            displayFolders();
+            displayImages(); // Exibe as imagens ao carregar se o usuário estiver autenticado
+            btnLogout.style.display = 'block';
+            uploadContainer.style.display = 'block'; // Exibe a seção de upload
+            createFolderContainer.style.display = 'block'; // Exibe a seção de criação de pasta
+        } else {
+            console.log('Usuário não autenticado');
+            btnLogout.style.display = 'none';
+            uploadContainer.style.display = 'none'; // Oculta a seção de upload
+            createFolderContainer.style.display = 'none'; // Oculta a seção de criação de pasta
+            imageContainer.innerHTML = ''; // Limpa o container de imagens se não estiver autenticado
+        }
+    });
+};
+
     </script>
 </body>
 </html>
