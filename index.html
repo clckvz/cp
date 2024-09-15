@@ -1,62 +1,81 @@
 <!DOCTYPE html>
-
 <html lang="pt-br">
-
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
+    <style>
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 10px 0;
+        }
+    </style>
 </head>
-
 <body>
-  <h1>Iniciando App CP</h1>   
-
-<div><label>Usuário</label></div>
-<input type="email" id="email">
-
-
-<div><label>Senha</label></div>
-<input type="password" id="pass">
-
-
-<div><button type="button" id="btnLog">Entrar</button></div>
-
-
+    <h1>Iniciando App CP</h1>   
+    <div><label for="email">Usuário</label></div>
+    <input type="email" id="email">
+    <div><label for="pass">Senha</label></div>
+    <input type="password" id="pass">
+    <div><button type="button" id="btnLog">Entrar</button></div>
+    <br>
+    <div id="imageContainer"></div>
     
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-storage-compat.js"></script>
+    <script src="js/firebaseConfig.js"></script>
+
+    <!-- Scripts -->
+    <script>
+        const g = (tag) => document.getElementById(tag);
+        const email = g('email');
+        const pass = g('pass');
+        const btnLog = g('btnLog');
+        const imageContainer = g('imageContainer');
+
+        // Firebase Authentication
+        btnLog.addEventListener('click', () => {
+            firebase.auth().signInWithEmailAndPassword(email.value, pass.value)
+                .then(() => {
+                    console.log('Login realizado com sucesso');
+                })
+                .catch((e) => {
+                    console.log('Erro ao fazer login');
+                    console.log(e.message);
+                });
+        });
+
+        // Firebase Storage reference
+        const storageRef = firebase.storage().ref();
+
+        async function displayImages() {
+            try {
+                const result = await storageRef.list({ maxResults: 100 });
+
+                for (const itemRef of result.items) {
+                    const url = await itemRef.getDownloadURL();
+                    const img = document.createElement('img');
+                    img.src = url;
+                    img.alt = 'Imagem';
+                    imageContainer.appendChild(img);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar imagens:', error);
+            }
+        }
+
+        // Chame a função quando a página estiver carregada
+        window.onload = displayImages;
+    </script>
 </body>
-
-
-<!--Firebase-->
-<script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
-<!--Firebase Authentication-->
-<script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
-
-<script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
-
-<!--Inicializando o app do Firebase em nosso projeto web-->
-<script src="js/firebaseConfig.js"></script>
-
-<!--Demais scripts-->
-
-<script>
-    const g =(tag) => document.getElementById(tag)
-    const c = (tag) => document.createElement(tag)
-
-    const email = g('email')
-    const pass = g('pass')
-    const btnLog = g('btnLog')
-
-    btnLog.addEventListener('click', ()=>{console.log(email.value,pass.value)})
-
-
-
-    
-</script>
-
 </html>
