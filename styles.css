@@ -1,0 +1,200 @@
+:root {
+    --cor0: #F2F2F2;
+    --cor1: #8DAEF2;
+    --cor2: #3F5073;
+    --cor3: #283040;
+    --cor4: #151B26;
+}
+
+/* Estilo geral do corpo */
+body {
+    font-family: Arial, sans-serif;
+    background-color: var(--cor0);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+/* Estilo do título */
+h1 {
+    color: var(--cor2);
+    margin: 30px 0;
+    font-size: 2.5em;
+}
+
+/* Contêiner principal */
+.container {
+    max-width: 900px;
+    width: 100%;
+    padding: 30px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    background-color: #ffffff;
+    border-radius: 12px;
+    margin: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Estilo dos grupos de formulário */
+.form-group {
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 500px;
+}
+
+/* Estilo dos rótulos */
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: var(--cor3);
+}
+
+/* Estilo dos campos de entrada e seleção */
+input[type="email"],
+input[type="password"],
+input[type="file"],
+input[type="text"],
+select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+/* Estilo dos botões */
+button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    color: #ffffff;
+    margin: 10px 0;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Estilos específicos para cada botão */
+button#btnLog {
+    background-color: var(--cor2);
+}
+
+button#btnLog:hover {
+    background-color: var(--cor3);
+}
+
+button#createFolderBtn {
+    background-color: var(--cor1);
+    color: #ffffff;
+    font-weight: bold;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+button#createFolderBtn:hover {
+    background-color: var(--cor2);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+button#btnUpload {
+    background-color: var(--cor1);
+}
+
+button#btnUpload:hover {
+    background-color: var(--cor2);
+}
+
+button#btnLogout {
+    background-color: var(--cor4);
+}
+
+button#btnLogout:hover {
+    background-color: #c82333;
+}
+
+/* Estilo para os wrappers de imagem */
+.image-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+/* Estilo das imagens */
+.image-wrapper img {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid var(--cor3);
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilo dos botões de exclusão */
+.delete-btn {
+    background-color: var(--cor4);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    margin-left: 15px;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 14px;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+.delete-btn:hover {
+    background-color: #c82333;
+}
+
+/* Estilo para a mensagem quando não há imagens */
+.no-images {
+    margin-top: 20px;
+    font-style: italic;
+    color: var(--cor3);
+    font-size: 18px;
+}
+
+/* Estilo para contêineres de upload e criação de pasta */
+.upload-container,
+.create-folder-container {
+    margin-top: 30px;
+    width: 100%;
+    max-width: 500px;
+}
+
+/* Estilo para a seleção de pasta */
+.folder-select {
+    margin-top: 15px;
+    font-size: 16px;
+}
+
+/* Estilo responsivo */
+@media (max-width: 600px) {
+    .container {
+        margin: 10px;
+        padding: 15px;
+    }
+
+    h1 {
+        font-size: 2em;
+    }
+
+    input[type="email"],
+    input[type="password"],
+    input[type="file"],
+    input[type="text"],
+    select,
+    button {
+        width: 100%;
+        margin-bottom: 12px;
+    }
+}
