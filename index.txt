@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <style>
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 10px 0;
+        }
+
+        .image-wrapper {
+            display: flex;
+            align-items: center;
+        }
+
+        .image-wrapper img {
+            margin-right: 10px;
+        }
+
+        .delete-btn {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        .logout-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Iniciando App CP</h1>   
+    <div><label for="email">Usuário</label></div>
+    <input type="email" id="email">
+    <div><label for="pass">Senha</label></div>
+    <input type="password" id="pass">
+    <div><button type="button" id="btnLog">Entrar</button></div>
+    <br>
+
+    <!-- Campo de upload -->
+    <input type="file" id="fileInput" accept="image/*">
+    <button type="button" id="btnUpload">Upload Imagem</button>
+
+    <div id="imageContainer"></div>
+
+    <!-- Botão de logout -->
+    <button type="button" id="btnLogout" class="logout-btn" style="display: none;">Sair</button>
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-storage-compat.js"></script>
+    <script src="js/firebaseConfig.js"></script>
+
+    <!-- Scripts -->
+    <script>
+        const g = (tag) => document.getElementById(tag);
+        const email = g('email');
+        const pass = g('pass');
+        const btnLog = g('btnLog');
+        const fileInput = g('fileInput');
+        const btnUpload = g('btnUpload');
+        const imageContainer = g('imageContainer');
+        const btnLogout = g('btnLogout');
+
+        // Firebase Authentication
+        btnLog.addEventListener('click', () => {
+            firebase.auth().signInWithEmailAndPassword(email.value, pass.value)
+                .then(() => {
+                    console.log('Login realizado com sucesso');
+                    // Após o login, exibe as imagens e mostra o botão de logout
+                    displayImages();
+                    btnLogout.style.display = 'block';
+                })
+                .catch((e) => {
+                    console.log('Erro ao fazer login');
+                    console.log(e.message);
+                });
+        });
+
+        // Função de logout
+        btnLogout.addEventListener('click', () => {
+            firebase.auth().signOut()
+                .then(() => {
+                    console.log('Logout realizado com sucesso');
+                    // Limpa a lista de imagens e oculta o botão de logout
+                    imageContainer.innerHTML = '';
+                    btnLogout.style.display = 'none';
+                })
+                .catch((e) => {
+                    console.log('Erro ao fazer logout');
+                    console.log(e.message);
+                });
+        });
+
+        // Firebase Storage reference
+        const storageRef = firebase.storage().ref();
+
+        // Função para exibir imagens da raiz do Firebase Storage
+        async function displayImages() {
+            imageContainer.innerHTML = ''; // Limpar o container antes de exibir as imagens
+            try {
+                const result = await storageRef.list({ maxResults: 100 });
+
+                for (const itemRef of result.items) {
+                    const url = await itemRef.getDownloadURL();
+                    const imageWrapper = document.createElement('div');
+                    imageWrapper.classList.add('image-wrapper');
+
+                    const img = document.createElement('img');
+                    img.src = url;
+                    img.alt = 'Imagem';
+                    
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.innerText = 'Excluir';
+                    deleteBtn.classList.add('delete-btn');
+                    
+                    // Adiciona a funcionalidade de excluir
+                    deleteBtn.addEventListener('click', () => deleteImage(itemRef));
+
+                    imageWrapper.appendChild(img);
+                    imageWrapper.appendChild(deleteBtn);
+                    imageContainer.appendChild(imageWrapper);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar imagens:', error);
+            }
+        }
+
+        // Função para excluir uma imagem
+        async function deleteImage(itemRef) {
+            try {
+                await itemRef.delete();
+                console.log('Imagem excluída com sucesso');
+                displayImages(); // Atualiza a lista de imagens após a exclusão
+            } catch (error) {
+                console.error('Erro ao excluir imagem:', error);
+            }
+        }
+
+        // Função de upload de arquivo
+        btnUpload.addEventListener('click', async () => {
+            const file = fileInput.files[0]; // Seleciona o arquivo
+            if (!file) {
+                alert('Por favor, selecione uma imagem para fazer o upload.');
+                return;
+            }
+
+            const fileRef = storageRef.child(file.name); // Cria uma referência com o nome do arquivo
+
+            try {
+                // Faz o upload do arquivo
+                await fileRef.put(file);
+                console.log('Upload concluído com sucesso');
+                
+                // Após o upload, exibe novamente as imagens
+                displayImages();
+            } catch (error) {
+                console.error('Erro ao fazer upload:', error);
+            }
+        });
+
+        // Chame a função para exibir imagens quando a página estiver carregada
+        window.onload = () => {
+            firebase.auth().onAuthStateChanged(user => {
+                if (user) {
+                    displayImages();
+                    btnLogout.style.display = 'block';
+                } else {
+                    console.log('Usuário não autenticado');
+                    btnLogout.style.display = 'none';
+                }
+            });
+        };
+    </script>
+</body>
+</html>
