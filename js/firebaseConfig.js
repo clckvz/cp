@@ -1,12 +1,20 @@
 // firebaseConfig.js
 const firebaseConfig = {
-  apiKey: "AIzaSyBcowCU3fWiqZgkR73M18JwNnNBlw8jdBk",
-  authDomain: "cprp-shopp.firebaseapp.com",
-  projectId: "cprp-shopp",
-  storageBucket: "cprp-shopp.appspot.com",
-  messagingSenderId: "220335210417",
-  appId: "1:220335210417:web:059ca478b5b7d262994790"
+
+  apiKey: "AIzaSyBaTiaLs49Cy_zyJFVriLWtX2NXEsyuegY",
+
+  authDomain: "cprp-shopp-93f7b.firebaseapp.com",
+
+  projectId: "cprp-shopp-93f7b",
+
+  storageBucket: "cprp-shopp-93f7b.appspot.com",
+
+  messagingSenderId: "788535295332",
+
+  appId: "1:788535295332:web:250ae62efec07215028e71"
+
 };
+
 
 // Inicialize o Firebase
 firebase.initializeApp(firebaseConfig);
